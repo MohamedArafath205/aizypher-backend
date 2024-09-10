@@ -10,12 +10,10 @@ module.exports = async (req, res) => {
     enable_iframe: process.env.EASEBUZZ_IFRAME,
   };
 
-  // Helper function to check if a value is a valid float
   function isFloat(amt) {
     return /^\d+\.\d{1,2}$/.test(amt);
   }
 
-  // Validate the arguments provided
   function checkArgumentValidation(data) {
     if (!data.name || typeof data.name !== "string" || !data.name.trim()) {
       return {
@@ -89,14 +87,12 @@ module.exports = async (req, res) => {
     return null;
   }
 
-  // Get the payment URL based on the environment
   function getUrl(env) {
     return env === "prod"
       ? "https://pay.easebuzz.in/"
       : "https://testpay.easebuzz.in/";
   }
 
-  // Generate the form data
   function generateForm(hash_key) {
     const form = {
       key: config.key,
@@ -121,7 +117,6 @@ module.exports = async (req, res) => {
       surl: data.surl,
     };
 
-    // Add optional parameters if they exist
     if (data.unique_id) form.unique_id = data.unique_id;
     if (data.split_payments) form.split_payments = data.split_payments;
     if (data.sub_merchant_id) form.sub_merchant_id = data.sub_merchant_id;
@@ -131,7 +126,6 @@ module.exports = async (req, res) => {
     return form;
   }
 
-  // Generate the hash for the payment
   function generateHash() {
     const hashstring = [
       config.key,
@@ -157,7 +151,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Validate input data
     const validationError = checkArgumentValidation(data);
     if (validationError) {
       return res
@@ -168,16 +161,13 @@ module.exports = async (req, res) => {
         });
     }
 
-    // Generate hash and prepare payment URL
     const hash_key = generateHash();
     const payment_url = getUrl(config.env);
     const call_url = `${payment_url}payment/initiateLink`;
 
-    // Generate form data and initiate payment
     const formData = generateForm(hash_key);
     const response = await util.call(call_url, formData);
 
-    // Redirect to payment URL
     const pay_url = `${payment_url}pay/${response.data}`;
     res.redirect(pay_url);
   } catch (error) {
