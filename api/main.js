@@ -3,21 +3,8 @@ const sha512 = require("js-sha512");
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const cors = require("cors"); // Optional, for better CORS handling
 
 const app = express();
-
-// Middleware setup
-app.use(cors(
-  {
-    origin: "*",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["*"],
-  }
-)); // Enable CORS
-app.options("*", cors()); // Handle preflight requests
-app.use(bodyParser.json()); // For parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Static files
 app.use("/static", express.static(path.join(__dirname, "assets")));
@@ -52,16 +39,6 @@ app.post("/response", (req, res) => {
 
 // Initiate Payment API
 app.post("/initiate_payment", async (req, res) => {
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-  );
   const data = req.body;
   const initiate_payment = require("./initiate_payment.js");
   initiate_payment.initiate_payment(data, config, res);
@@ -96,6 +73,6 @@ app.post("/refund", (req, res) => {
 });
 
 // Start the server
-app.listen(3001, () => {
+app.listen(3000, () => {
   console.log("Easebuzz Payment Kit Demo server started at port 3001");
 });
