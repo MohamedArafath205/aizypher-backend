@@ -6,18 +6,20 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
-// Use CORS middleware
-app.use(cors());
-
+// CORS configuration
 const corsOptions = {
-  origin: "*",
-  methods: "GET,POST",
-  allowedHeaders: "Content-Type",
+  origin: "*", // Change this to a specific origin if needed (e.g., 'http://localhost:3000')
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type, Authorization",
+  credentials: true, // Set to true if your application needs to send credentials
 };
 
 app.use(cors(corsOptions));
-
 app.options("*", cors(corsOptions));
+
+// Middleware
+app.use(bodyParser.json()); // For parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Static files
 app.use("/static", express.static(path.join(__dirname, "assets")));
@@ -35,57 +37,79 @@ const config = {
   enable_iframe: process.env.EASEBUZZ_IFRAME,
 };
 
+// Utility function to check reverse hash
+function checkReverseHash(response) {
+  const hashstring = `${config.salt}|${response.status}|${response.udf10}|${response.udf9}|${response.udf8}|${response.udf7}|${response.udf6}|${response.udf5}|${response.udf4}|${response.udf3}|${response.udf2}|${response.udf1}|${response.email}|${response.firstname}|${response.productinfo}|${response.amount}|${response.txnid}|${response.key}`;
+  const hash_key = sha512.sha512(hashstring);
+  return hash_key === response.hash;
+}
+
 // Response route
 app.post("/response", (req, res) => {
-  function checkReverseHash(response) {
-    const hashstring = `${config.salt}|${response.status}|${response.udf10}|${response.udf9}|${response.udf8}|${response.udf7}|${response.udf6}|${response.udf5}|${response.udf4}|${response.udf3}|${response.udf2}|${response.udf1}|${response.email}|${response.firstname}|${response.productinfo}|${response.amount}|${response.txnid}|${response.key}`;
-    const hash_key = sha512.sha512(hashstring);
-    return hash_key === req.body.hash;
-  }
-
   if (checkReverseHash(req.body)) {
-    res.send(req.body);
+    res.json(req.body);
   } else {
-    res.send("false, check the hash value");
+    res.status(400).send("Invalid hash value");
   }
 });
 
 // Initiate Payment API
-app.post("/initiate_payment", async (req, res) => {
+app.post("/api/initiate_payment", async (req, res) => {
   const data = req.body;
-  const initiate_payment = require("./initiate_payment.js");
-  initiate_payment.initiate_payment(data, config, res);
+  try {
+    const initiate_payment = require("./initiate_payment.js");
+    await initiate_payment.initiate_payment(data, config, res);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Transaction API
 app.post("/transaction", (req, res) => {
   const data = req.body;
-  const transaction = require("./transaction.js"); // Fixed path
-  transaction.transaction(data, config, res);
+  try {
+    const transaction = require("./transaction.js");
+    transaction.transaction(data, config, res);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Transaction Date API
 app.post("/transaction_date", (req, res) => {
   const data = req.body;
-  const transaction_date = require("./transaction_date.js"); // Fixed path and spelling
-  transaction_date.transaction_date(data, config, res);
+  try {
+    const transaction_date = require("./transaction_date.js");
+    transaction_date.transaction_date(data, config, res);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Payout API
 app.post("/payout", (req, res) => {
   const data = req.body;
-  const payout = require("./payout.js"); // Fixed path
-  payout.payout(data, config, res);
+  try {
+    const payout = require("./payout.js");
+    payout.payout(data, config, res);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Refund API
 app.post("/refund", (req, res) => {
   const data = req.body;
-  const refund = require("./refund.js"); // Fixed path
-  refund.refund(data, config, res);
+  try {
+    const refund = require("./refund.js");
+    refund.refund(data, config, res);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // Start the server
-app.listen(3000, () => {
-  console.log("Easebuzz Payment Kit Demo server started at port 3001");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Easebuzz Payment Kit Demo server started at port ${PORT}`);
 });
