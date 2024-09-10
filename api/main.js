@@ -7,14 +7,14 @@ const cors = require("cors");
 const app = express();
 
 // CORS configuration
-const corsOptions = {
-  origin: "*", // Change this to a specific origin if needed (e.g., 'http://localhost:3000')
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  allowedHeaders: "Content-Type, Authorization",
-  credentials: true, // Set to true if your application needs to send credentials
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "*", // Replace '*' with your specific origin(s) if needed
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.options("*", cors(corsOptions));
 
 // Middleware
