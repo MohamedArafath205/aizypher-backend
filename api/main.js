@@ -1,104 +1,97 @@
-/* 
- ------------------------------------------
-  Easebuzz Payment Gateway Integration Kit
-  
-  Install required packages -> npm install
+require("dotenv").config();
+const sha512 = require("js-sha512");
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const cors = require("cors"); // Optional, for better CORS handling
 
-  Run integration kit -> node main.js
- -----------------------------------------
-  Author:  Arafath
+const app = express();
 
-*/
+// Middleware setup
+app.use(cors()); // Add CORS middleware for handling cross-origin requests
+app.use(bodyParser.json()); // For parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
-require('dotenv').config()
-var sha512 = require('js-sha512');
-var express = require("express");
-var app = express();
-var path = require("path");
-var bodyParser = require('body-parser');
-app.use(bodyParser());
-app.use('/static', express.static(path.join(__dirname, 'assets')))
-app.use('/view', express.static(path.join(__dirname, 'views')))
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'ejs')
-/* 
-  Change key,salt and other configuration mentioned in .env file
-*/
+// Static files
+app.use("/static", express.static(path.join(__dirname, "assets")));
+app.use("/view", express.static(path.join(__dirname, "views")));
 
-var config = {
+// View engine setup
+app.engine("html", require("ejs").renderFile);
+app.set("view engine", "ejs");
+
+// Configuration
+const config = {
   key: process.env.EASEBUZZ_KEY,
   salt: process.env.EASEBUZZ_SALT,
   env: process.env.EASEBUZZ_ENV,
   enable_iframe: process.env.EASEBUZZ_IFRAME,
 };
 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'index.html'));
+// Root route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-//response 
-app.post('/response', function (req, res) {
+// Response route
+app.post("/response", (req, res) => {
   function checkReverseHash(response) {
-    var hashstring = config.salt + "|" + response.status + "|" + response.udf10 + "|" + response.udf9 + "|" + response.udf8 + "|" + response.udf7 +
-      "|" + response.udf6 + "|" + response.udf5 + "|" + response.udf4 + "|" + response.udf3 + "|" + response.udf2 + "|" + response.udf1 + "|" +
-      response.email + "|" + response.firstname + "|" + response.productinfo + "|" + response.amount + "|" + response.txnid + "|" + response.key
-    hash_key = sha512.sha512(hashstring);
-    if (hash_key == req.body.hash)
-      return true;
-    else
-      return false;
+    const hashstring = `${config.salt}|${response.status}|${response.udf10}|${response.udf9}|${response.udf8}|${response.udf7}|${response.udf6}|${response.udf5}|${response.udf4}|${response.udf3}|${response.udf2}|${response.udf1}|${response.email}|${response.firstname}|${response.productinfo}|${response.amount}|${response.txnid}|${response.key}`;
+    const hash_key = sha512.sha512(hashstring);
+    return hash_key === req.body.hash;
   }
+
   if (checkReverseHash(req.body)) {
     res.send(req.body);
+  } else {
+    res.send("false, check the hash value");
   }
-  res.send('false, check the hash value ');
 });
 
-
-//initiate_payment API
-app.post('/initiate_payment', function (req, res) {
+// Initiate Payment API
+app.post("/initiate_payment", (req, res) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
 
-  data = req.body;
-  var initiate_payment = require('./initiate_payment.js');
+  const data = req.body;
+  const initiate_payment = require("./initiate_payment.js");
   initiate_payment.initiate_payment(data, config, res);
 });
 
-//Transcation API  
-app.post('/transaction', function (req, res) {
-  data = req.body;
-  var transaction = require('/transaction.js');
+// Transaction API
+app.post("/transaction", (req, res) => {
+  const data = req.body;
+  const transaction = require("./transaction.js"); // Fixed path
   transaction.transaction(data, config, res);
 });
 
-
-//Transcation Date API  
-app.post('/transaction_date', function (req, res) {
-
-  data = req.body;
-  var transaction_date = require('/tranaction_date.js');
-  transaction_date.tranaction_date(data, config, res);
+// Transaction Date API
+app.post("/transaction_date", (req, res) => {
+  const data = req.body;
+  const transaction_date = require("./transaction_date.js"); // Fixed path and spelling
+  transaction_date.transaction_date(data, config, res);
 });
 
-//Payout API
-app.post('/payout', function (req, res) {
-
-  data = req.body;
-  var payout = require('/payout.js');
+// Payout API
+app.post("/payout", (req, res) => {
+  const data = req.body;
+  const payout = require("./payout.js"); // Fixed path
   payout.payout(data, config, res);
-
 });
 
-//Refund API
-app.post('/refund', function (req, res) {
-  data = req.body;
-  var refund = require('/refund.js');
+// Refund API
+app.post("/refund", (req, res) => {
+  const data = req.body;
+  const refund = require("./refund.js"); // Fixed path
   refund.refund(data, config, res);
-
 });
 
-app.listen(3000);
-console.log("Easebuzz Payment Kit Demo server started at 3000");
+// Start the server
+app.listen(3000, () => {
+  console.log("Easebuzz Payment Kit Demo server started at port 3000");
+});
