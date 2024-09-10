@@ -16,74 +16,84 @@ module.exports = async (req, res) => {
   }
 
   // Validate the arguments provided
-  function checkArgumentValidation(data, config) {
-    if (!data.name.trim()) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Mandatory Parameter 'name' cannot be empty",
-        });
+  function checkArgumentValidation(data) {
+    if (!data.name || typeof data.name !== "string" || !data.name.trim()) {
+      return {
+        status: 0,
+        message: "Mandatory Parameter 'name' cannot be empty",
+      };
     }
-    if (!data.amount.trim() || !isFloat(data.amount)) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Mandatory Parameter 'amount' cannot be empty and must be a decimal",
-        });
+    if (
+      !data.amount ||
+      typeof data.amount !== "string" ||
+      !isFloat(data.amount)
+    ) {
+      return {
+        status: 0,
+        message:
+          "Mandatory Parameter 'amount' cannot be empty and must be a decimal",
+      };
     }
-    if (!data.txnid.trim()) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Merchant Transaction validation failed. Please enter a valid value for 'txnid'",
-        });
+    if (!data.txnid || typeof data.txnid !== "string" || !data.txnid.trim()) {
+      return {
+        status: 0,
+        message:
+          "Merchant Transaction validation failed. Please enter a valid value for 'txnid'",
+      };
     }
-    if (!data.email.trim() || !util.validate_mail(data.email)) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Email validation failed. Please enter a valid value for 'email'",
-        });
+    if (
+      !data.email ||
+      typeof data.email !== "string" ||
+      !util.validate_mail(data.email)
+    ) {
+      return {
+        status: 0,
+        message:
+          "Email validation failed. Please enter a valid value for 'email'",
+      };
     }
-    if (!data.phone.trim() || !util.validate_phone(data.phone)) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Phone validation failed. Please enter a valid value for 'phone'",
-        });
+    if (
+      !data.phone ||
+      typeof data.phone !== "string" ||
+      !util.validate_phone(data.phone)
+    ) {
+      return {
+        status: 0,
+        message:
+          "Phone validation failed. Please enter a valid value for 'phone'",
+      };
     }
-    if (!data.productinfo.trim()) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Mandatory Parameter 'productinfo' cannot be empty",
-        });
+    if (
+      !data.productinfo ||
+      typeof data.productinfo !== "string" ||
+      !data.productinfo.trim()
+    ) {
+      return {
+        status: 0,
+        message: "Mandatory Parameter 'productinfo' cannot be empty",
+      };
     }
-    if (!data.surl.trim() || !data.furl.trim()) {
-      return res
-        .status(400)
-        .json({
-          status: 0,
-          data: "Mandatory Parameter 'surl'/'furl' cannot be empty",
-        });
+    if (
+      !data.surl ||
+      typeof data.surl !== "string" ||
+      !data.surl.trim() ||
+      !data.furl ||
+      typeof data.furl !== "string" ||
+      !data.furl.trim()
+    ) {
+      return {
+        status: 0,
+        message: "Mandatory Parameter 'surl'/'furl' cannot be empty",
+      };
     }
+    return null;
   }
 
   // Get the payment URL based on the environment
   function getUrl(env) {
-    switch (env) {
-      case "prod":
-        return "https://pay.easebuzz.in/";
-      case "test":
-      default:
-        return "https://testpay.easebuzz.in/";
-    }
+    return env === "prod"
+      ? "https://pay.easebuzz.in/"
+      : "https://testpay.easebuzz.in/";
   }
 
   // Generate the form data
@@ -148,13 +158,20 @@ module.exports = async (req, res) => {
 
   try {
     // Validate input data
-    const validationError = checkArgumentValidation(data, config);
-    if (validationError) return;
+    const validationError = checkArgumentValidation(data);
+    if (validationError) {
+      return res
+        .status(400)
+        .json({
+          status: validationError.status,
+          data: validationError.message,
+        });
+    }
 
     // Generate hash and prepare payment URL
     const hash_key = generateHash();
     const payment_url = getUrl(config.env);
-    const call_url = payment_url + "payment/initiateLink";
+    const call_url = `${payment_url}payment/initiateLink`;
 
     // Generate form data and initiate payment
     const formData = generateForm(hash_key);
