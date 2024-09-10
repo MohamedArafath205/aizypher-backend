@@ -54,7 +54,7 @@ app.post("/response", (req, res) => {
 });
 
 // Initiate Payment API
-app.post("/initiate_payment", corsMiddleware, (req, res) => {
+app.post("/api/initiate_payment", async (req, res) => {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
