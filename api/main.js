@@ -3,34 +3,21 @@ const sha512 = require("js-sha512");
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const nodemailer = require("nodemailer");
-const cors = require("cors");
+const cors = require("cors"); // Optional, for better CORS handling
 
-// Create Express app
 const app = express();
 
-// CORS middleware
-app.use(
-  cors({
+// Middleware setup
+app.use(cors(
+  {
     origin: "*",
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["*"],
-  })
-);
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Nodemailer transporter setup
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: false, // Use `true` for port 465, `false` for all other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+  }
+)); // Enable CORS
+app.options("*", cors()); // Handle preflight requests
+app.use(bodyParser.json()); // For parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
 // Static files
 app.use("/static", express.static(path.join(__dirname, "assets")));
@@ -40,7 +27,7 @@ app.use("/view", express.static(path.join(__dirname, "views")));
 app.engine("html", require("ejs").renderFile);
 app.set("view engine", "ejs");
 
-// Configuration for payment
+// Configuration
 const config = {
   key: process.env.EASEBUZZ_KEY,
   salt: process.env.EASEBUZZ_SALT,
@@ -48,74 +35,67 @@ const config = {
   enable_iframe: process.env.EASEBUZZ_IFRAME,
 };
 
-app.get("/", (req, res) => res.send("Hello World"));
+// Response route
+app.post("/response", (req, res) => {
+  function checkReverseHash(response) {
+    const hashstring = `${config.salt}|${response.status}|${response.udf10}|${response.udf9}|${response.udf8}|${response.udf7}|${response.udf6}|${response.udf5}|${response.udf4}|${response.udf3}|${response.udf2}|${response.udf1}|${response.email}|${response.firstname}|${response.productinfo}|${response.amount}|${response.txnid}|${response.key}`;
+    const hash_key = sha512.sha512(hashstring);
+    return hash_key === req.body.hash;
+  }
 
-// Payment routes
-app.post("/api/initiate_payment", async (req, res) => {
+  if (checkReverseHash(req.body)) {
+    res.send(req.body);
+  } else {
+    res.send("false, check the hash value");
+  }
+});
+
+// Initiate Payment API
+app.post("/initiate_payment", async (req, res) => {
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
   const data = req.body;
   const initiate_payment = require("./initiate_payment.js");
   initiate_payment.initiate_payment(data, config, res);
 });
 
-// Transaction routes
+// Transaction API
 app.post("/transaction", (req, res) => {
   const data = req.body;
-  const transaction = require("./transaction.js");
+  const transaction = require("./transaction.js"); // Fixed path
   transaction.transaction(data, config, res);
 });
 
+// Transaction Date API
 app.post("/transaction_date", (req, res) => {
   const data = req.body;
-  const transaction_date = require("./transaction_date.js");
+  const transaction_date = require("./transaction_date.js"); // Fixed path and spelling
   transaction_date.transaction_date(data, config, res);
 });
 
+// Payout API
 app.post("/payout", (req, res) => {
   const data = req.body;
-  const payout = require("./payout.js");
+  const payout = require("./payout.js"); // Fixed path
   payout.payout(data, config, res);
 });
 
+// Refund API
 app.post("/refund", (req, res) => {
   const data = req.body;
-  const refund = require("./refund.js");
+  const refund = require("./refund.js"); // Fixed path
   refund.refund(data, config, res);
 });
 
-// Email sending route
-app.post("/api/send-email", async (req, res) => {
-  const { to, subject, text, html } = req.body;
-
-  // Check if 'to' field is present
-  if (!to) {
-    return res.status(400).send("Recipient email (to) is required");
-  }
-
-  try {
-    const info = await transporter.sendMail({
-      from: process.env.HOST_FROM,
-      to,
-      subject,
-      text,
-      html,
-    });
-
-    console.log("Message sent: %s", info.messageId);
-    res.status(200).send("Email sent successfully");
-  } catch (error) {
-    console.error("Error sending email: ", error);
-    res.status(500).send("Error sending email: " + error.message);
-  }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-});
-
 // Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(3001, () => {
+  console.log("Easebuzz Payment Kit Demo server started at port 3001");
 });
