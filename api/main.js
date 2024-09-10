@@ -101,6 +101,6 @@ app.post("/refund", (req, res) => {
 });
 
 // Start the server
-app.listen(3000, () => {
-  console.log("Easebuzz Payment Kit Demo server started at port 3000");
+app.listen(3001, () => {
+  console.log("Easebuzz Payment Kit Demo server started at port 3001");
 });
