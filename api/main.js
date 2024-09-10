@@ -48,10 +48,7 @@ const config = {
   enable_iframe: process.env.EASEBUZZ_IFRAME,
 };
 
-// Root route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+app.get("/", (req, res) => res.send("Hello World"));
 
 // Payment routes
 app.post("/api/initiate_payment", async (req, res) => {
