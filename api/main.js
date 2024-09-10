@@ -3,8 +3,20 @@ const sha512 = require("js-sha512");
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-
+const cors = require("cors");
 const app = express();
+
+// Use CORS middleware
+app.use(cors());
+
+const corsOptions = {
+  origin: "https://your-allowed-origin.com",
+  methods: "GET,POST",
+  allowedHeaders: "Content-Type",
+};
+
+app.use(cors(corsOptions));
+
 
 // Static files
 app.use("/static", express.static(path.join(__dirname, "assets")));
