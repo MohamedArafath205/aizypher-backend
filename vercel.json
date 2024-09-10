@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/api/send-email",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
