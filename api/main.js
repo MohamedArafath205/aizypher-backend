@@ -57,9 +57,10 @@ app.post('/response', function (req, res) {
 
 //initiate_payment API
 app.post('/initiate_payment', function (req, res) {
-res.setHeader("Access-Control-Allow-Origin", "*");
-res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
 
   data = req.body;
   var initiate_payment = require('./initiate_payment.js');
