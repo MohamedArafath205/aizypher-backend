@@ -10,13 +10,14 @@ const app = express();
 app.use(cors());
 
 const corsOptions = {
-  origin: "https://your-allowed-origin.com",
+  origin: "*",
   methods: "GET,POST",
   allowedHeaders: "Content-Type",
 };
 
 app.use(cors(corsOptions));
 
+app.options("*", cors(corsOptions));
 
 // Static files
 app.use("/static", express.static(path.join(__dirname, "assets")));
