@@ -8,7 +8,14 @@ const cors = require("cors"); // Optional, for better CORS handling
 const app = express();
 
 // Middleware setup
-app.use(cors()); // Add CORS middleware for handling cross-origin requests
+app.use(
+  cors({
+    origin: "*", // Adjust this to a specific origin if necessary
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+); // Add CORS middleware for handling cross-origin requests
+app.options("*", cors()); // Handle preflight requests
 app.use(bodyParser.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
