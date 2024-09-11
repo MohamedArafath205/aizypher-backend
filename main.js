@@ -10,7 +10,7 @@ const app = express();
 
 app.use(cors());
 
-app.options("*", cors()); // Enable pre-flight
+app.options("*", cors());
 
 // Middleware
 app.use(bodyParser.json()); // Parse JSON bodies
