@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "Easebuzz/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/initiate_payment",
+      "dest": "/Easebuzz/initiate_payment.js"
+    },
+    {
+      "src": "/response",
+      "dest": "/Easebuzz/response.js"
+    },
+    {
+      "src": "/transaction",
+      "dest": "/Easebuzz/transaction.js"
+    },
+    {
+      "src": "/transaction_date",
+      "dest": "/Easebuzz/transaction_date.js"
+    },
+    {
+      "src": "/payout",
+      "dest": "/Easebuzz/payout.js"
+    },
+    {
+      "src": "/refund",
+      "dest": "/Easebuzz/refund.js"
+    }
+  ]
+}
