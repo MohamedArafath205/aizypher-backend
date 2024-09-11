@@ -2,11 +2,9 @@
 const sha512 = require("js-sha512");
 const util = require("./util.js");
 
+
+
 module.exports = async (req, res) => {
-  // Set CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Adjust origin if needed
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") {
     // Handle preflight requests
