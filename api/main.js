@@ -7,15 +7,16 @@ const cors = require("cors");
 const app = express();
 
 // CORS configuration
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
-app.options("*", cors(corsOptions));
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Handle preflight requests
 
 // Middleware
 app.use(bodyParser.json()); // For parsing application/json
