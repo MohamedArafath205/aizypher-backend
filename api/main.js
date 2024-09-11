@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: "*", // Adjust as needed
     methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["*"],
     credentials: true,
   })
 );
@@ -25,7 +25,14 @@ const config = {
   enable_iframe: process.env.EASEBUZZ_IFRAME,
 };
 
-// Example route
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Allow all origins
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+
 app.post("/api/initiate_payment", async (req, res) => {
   const data = req.body;
   try {
