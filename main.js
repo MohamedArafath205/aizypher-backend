@@ -7,11 +7,6 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-const corsOptions = {
-  origin: "*",
-  optionsSuccessStatus: 200,
-};
-
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     res.status(200).send();
@@ -20,9 +15,9 @@ app.use((req, res, next) => {
   }
 });
 
-app.use(cors(corsOptions));
+app.use(cors());
 
-app.options("*", cors(corsOptions));
+app.options("*", cors());
 
 // Middleware
 app.use(bodyParser.json()); // Parse JSON bodies
