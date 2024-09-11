@@ -20,6 +20,7 @@
     "js-sha512": "^0.8.0",
     "location-href": "^1.0.0",
     "nodemon": "^2.0.4",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "vercel": "^37.4.1"
   }
 }

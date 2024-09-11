@@ -1,17 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "Easebuzz/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/initiate_payment",
-      "dest": "/Easebuzz/initiate_payment.js"
-    }
-  ],
   "headers": [
     {
       "source": "/initiate_payment",

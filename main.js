@@ -78,7 +78,7 @@ app.post("/response", function (req, res) {
 });
 
 // Initiate Payment API
-app.post("/initiate_payment", corsOptions, function (req, res) {
+app.post("/initiate_payment", function (req, res) {
   const data = req.body;
   const initiate_payment = require("./Easebuzz/initiate_payment.js");
   initiate_payment.initiate_payment(data, config, res);
