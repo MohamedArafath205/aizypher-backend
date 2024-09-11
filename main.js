@@ -70,6 +70,10 @@ app.post("/response", function (req, res) {
 
 // Initiate Payment API
 app.post("/initiate_payment", function (req, res) {
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "POST");
   const data = req.body;
   const initiate_payment = require("./Easebuzz/initiate_payment.js");
   initiate_payment.initiate_payment(data, config, res);
