@@ -10,31 +10,11 @@
     {
       "src": "/initiate_payment",
       "dest": "/Easebuzz/initiate_payment.js"
-    },
-    {
-      "src": "/response",
-      "dest": "/Easebuzz/response.js"
-    },
-    {
-      "src": "/transaction",
-      "dest": "/Easebuzz/transaction.js"
-    },
-    {
-      "src": "/transaction_date",
-      "dest": "/Easebuzz/transaction_date.js"
-    },
-    {
-      "src": "/payout",
-      "dest": "/Easebuzz/payout.js"
-    },
-    {
-      "src": "/refund",
-      "dest": "/Easebuzz/refund.js"
     }
   ],
   "headers": [
     {
-      "source": "/(initiate_payment|response|transaction|transaction_date|payout|refund)",
+      "source": "/initiate_payment",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -42,11 +22,11 @@
         },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, OPTIONS"
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
+          "value": "*"
         },
         {
           "key": "Access-Control-Allow-Credentials",
