@@ -7,23 +7,16 @@ const sha512 = require("js-sha512");
 
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: "http://localhost:3000", // Replace with your frontend URL
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
+// CORS middleware
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["*"],
+  })
+);
 
-app.use(cors(corsOptions));
-
-// Middleware
-app.use(bodyParser.json()); // For parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
-
-// View engine setup
-app.engine("html", require("ejs").renderFile);
-app.set("view engine", "ejs");
+app.use(bodyParser.json());
 
 // Configuration
 const config = {
@@ -34,7 +27,18 @@ const config = {
 };
 
 // Example route
-app.post("/api/initiate_payment", async (req, res) => {
+app.post("/api/initiate_payment", async (req, res) => {res.setHeader("Access-Control-Allow-Credentials", true);
+res.setHeader("Access-Control-Allow-Origin", "*");
+// another common pattern
+// res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+res.setHeader(
+  "Access-Control-Allow-Methods",
+  "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+);
+res.setHeader(
+  "Access-Control-Allow-Headers",
+  "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+);
   const data = req.body;
   try {
     const initiate_payment = require("./initiate_payment.js");
