@@ -7,10 +7,14 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
+const corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
 
-app.options("*", cors());
+app.options("*", cors(corsOptions));
 
 // Middleware
 app.use(bodyParser.json()); // Parse JSON bodies
