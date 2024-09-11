@@ -1,161 +1,152 @@
-// Easebuzz/initiate_payment.js
-const sha512 = require("js-sha512");
-const util = require("./util.js");
+var util = require('./util.js');
 
+var sha512 = require('js-sha512');
 
-
-module.exports = async (req, res) => {
-
-  if (req.method === "OPTIONS") {
-    // Handle preflight requests
-    return res.status(204).end();
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ status: 0, message: "Method Not Allowed" });
-  }
-
-  const data = req.body;
+let initiate_payment = function (data, config, res) {
 
   function isFloat(amt) {
-    const regexp = /^\d+\.\d{1,2}$/;
-    return regexp.test(amt);
+    var regexp = /^\d+\.\d{1,2}$/;
+    return regexp.test(amt)
   }
 
-  function checkArgumentValidation(data) {
+
+  function checkArgumentValidation(data, config) {
+
     if (!data.name.trim()) {
-      return { status: 0, message: "Mandatory Parameter name cannot be empty" };
+      res.json({
+        "status": 0,
+        "data": "Mandatory Parameter name can not empty"
+      });
     }
-    if (!data.amount.trim() || !isFloat(data.amount)) {
-      return {
-        status: 0,
-        message:
-          "Mandatory Parameter amount cannot be empty and must be in decimal",
-      };
+    if (!(data.amount.trim()) || !(isFloat(data.amount))) {
+      res.json({
+        "status": 0,
+        "data": "Mandatory Parameter amount can not empty and must be in decimal "
+      });
     }
-    if (!data.txnid.trim()) {
-      return {
-        status: 0,
-        message:
-          "Merchant Transaction validation failed. Please enter proper value for merchant txn",
-      };
+    if (!(data.txnid.trim())) {
+      res.json({
+        "status": 0,
+        "data": "Merchant Transaction validation failed. Please enter proper value for merchant txn"
+      });
     }
-    if (!data.email.trim() || !util.validate_mail(data.email)) {
-      return {
-        status: 0,
-        message: "Email validation failed. Please enter proper value for email",
-      };
+    if (!(data.email.trim()) || !(util.validate_mail(data.email))) {
+      res.json({
+        "status": 0,
+        "data": "Email validation failed. Please enter proper value for email"
+      });
     }
-    if (!data.phone.trim() || !util.validate_phone(data.phone)) {
-      return {
-        status: 0,
-        message: "Phone validation failed. Please enter proper value for phone",
-      };
+    if (!(data.phone.trim()) || util.validate_phone(data.phone)) {
+      res.json({
+        "status": 0,
+        "data": "Phone validation failed. Please enter proper value for phone"
+      });
     }
-    if (!data.productinfo.trim()) {
-      return {
-        status: 0,
-        message: "Mandatory Parameter Product info cannot be empty",
-      };
+    if (!(data.productinfo.trim())) {
+      res.json({
+        "status": 0,
+        "data": "Mandatory Parameter Product info cannot be empty"
+      });
     }
-    if (!data.surl.trim() || !data.furl.trim()) {
-      return {
-        status: 0,
-        message: "Mandatory Parameter Surl/Furl cannot be empty",
-      };
+    if (!(data.surl.trim()) || !(data.furl.trim())) {
+      res.json({
+        "status": 0,
+        "data": "Mandatory Parameter Surl/Furl cannot be empty"
+      });
     }
-    return null;
   }
 
   function geturl(env) {
-    switch (env) {
-      case "test":
-        return "https://testpay.easebuzz.in/";
-      case "prod":
-        return "https://pay.easebuzz.in/";
-      default:
-        return "https://testpay.easebuzz.in/";
+    if (env == 'test') {
+      url_link = "https://testpay.easebuzz.in/";
+
+    } else if (env == 'prod') {
+      url_link = 'https://pay.easebuzz.in/';
+    } else {
+      url_link = "https://testpay.easebuzz.in/";
     }
+    return url_link;
   }
 
-  function generateHash() {
-    const hashstring = [
-      config.key,
-      data.txnid,
-      data.amount,
-      data.productinfo,
-      data.name,
-      data.email,
-      data.udf1 || "",
-      data.udf2 || "",
-      data.udf3 || "",
-      data.udf4 || "",
-      data.udf5 || "",
-      data.udf6 || "",
-      data.udf7 || "",
-      data.udf8 || "",
-      data.udf9 || "",
-      data.udf10 || "",
-      config.salt,
-    ].join("|");
+  function form() {
+    form = {
+      'key': config.key,
+      'txnid': data.txnid,
+      'amount': data.amount,
+      'email': data.email,
+      'phone': data.phone,
+      'firstname': data.name,
+      'udf1': data.udf1 || "",
+      'udf2': data.udf2 || "",
+      'udf3': data.udf3 || "",
+      'udf4': data.udf4 || "",
+      'udf5': data.udf5 || "",
+      'hash': hash_key,
+      'productinfo': data.productinfo,
+      'udf6': data.udf6 || "",
+      'udf7': data.udf7 || "",
+      'udf8': data.udf8 || "",
+      'udf9': data.udf9 || "",
+      'udf10': data.udf10 || "",
+      'furl': data.furl, //'http://localhost:3000/response',
+      'surl': data.surl, //'http://localhost:3000/response'
+    }
+    if (data.unique_id != '') {
+      form.unique_id = data.unique_id
+    }
 
-    return sha512.sha512(hashstring);
+
+    if (data.split_payments != '') {
+      form.split_payments = data.split_payments
+    }
+
+    if (data.sub_merchant_id != '') {
+      form.sub_merchant_id = data.sub_merchant_id
+    }
+
+    if (data.customer_authentication_id != '') {
+      form.customer_authentication_id = data.customer_authentication_id
+    }
+
+    return form;
   }
 
-  const validationError = checkArgumentValidation(data);
-  if (validationError) {
-    return res.status(400).json(validationError);
-  }
+  // main calling part is below
 
-  const hash_key = generateHash();
-  const payment_url = geturl(config.env);
-  const call_url = `${payment_url}payment/initiateLink`;
+  checkArgumentValidation(data, config);
+  var hash_key = generateHash();
+  payment_url = geturl(config.env);
+  call_url = payment_url + 'payment/initiateLink';
+  util.call(call_url, form()).then(function (response) {
+    pay(response.data, payment_url)
+  });
 
-  const form = {
-    key: config.key,
-    txnid: data.txnid,
-    amount: data.amount,
-    email: data.email,
-    phone: data.phone,
-    firstname: data.name,
-    udf1: data.udf1 || "",
-    udf2: data.udf2 || "",
-    udf3: data.udf3 || "",
-    udf4: data.udf4 || "",
-    udf5: data.udf5 || "",
-    hash: hash_key,
-    productinfo: data.productinfo,
-    udf6: data.udf6 || "",
-    udf7: data.udf7 || "",
-    udf8: data.udf8 || "",
-    udf9: data.udf9 || "",
-    udf10: data.udf10 || "",
-    furl: data.furl,
-    surl: data.surl,
-  };
 
-  if (data.unique_id) form.unique_id = data.unique_id;
-  if (data.split_payments) form.split_payments = data.split_payments;
-  if (data.sub_merchant_id) form.sub_merchant_id = data.sub_merchant_id;
-  if (data.customer_authentication_id)
-    form.customer_authentication_id = data.customer_authentication_id;
-
-  try {
-    const response = await util.call(call_url, form);
-
-    if (config.enable_iframe === 0) {
-      const url = `${payment_url}pay/${response.data}`;
+  function pay(access_key, url_main) {
+    
+    if (config.enable_iframe==0) {
+      var url = url_main + 'pay/' + access_key;
       return res.redirect(url);
     } else {
-      return res.render("enable_iframe.html", {
-        key: config.key,
-        access_key: response.data,
+
+      res.render("enable_iframe.html", {
+        'key': config.key,
+        'access_key': access_key
       });
+
     }
-  } catch (error) {
-    console.error("Error during payment initiation:", error);
-    return res
-      .status(500)
-      .json({ status: 0, message: "Internal Server Error" });
   }
-};
+
+
+  function generateHash() {
+
+    var hashstring = config.key + "|" + data.txnid + "|" + data.amount + "|" + data.productinfo + "|" + data.name + "|" + data.email +
+      "|" + data.udf1 + "|" + data.udf2 + "|" + data.udf3 + "|" + data.udf4 + "|" + data.udf5 + "|" + data.udf6 + "|" + data.udf7 + "|" + data.udf8 + "|" + data.udf9 + "|" + data.udf10;
+    hashstring += "|" + config.salt;
+    data.hash = sha512.sha512(hashstring);
+    return (data.hash);
+  }
+
+}
+
+exports.initiate_payment = initiate_payment;
