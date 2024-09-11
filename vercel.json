@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/api/initiate_payment",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
