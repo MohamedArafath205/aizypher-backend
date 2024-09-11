@@ -12,6 +12,14 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.status(200).send();
+  } else {
+    next();
+  }
+});
+
 app.use(cors(corsOptions));
 
 app.options("*", cors(corsOptions));
@@ -75,11 +83,7 @@ app.post("/response", function (req, res) {
 });
 
 // Initiate Payment API
-app.post("/initiate_payment", function (req, res) {
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Access-Control-Allow-Methods", "POST");
+app.post("/initiate_payment", corsOptions, function (req, res) {
   const data = req.body;
   const initiate_payment = require("./Easebuzz/initiate_payment.js");
   initiate_payment.initiate_payment(data, config, res);

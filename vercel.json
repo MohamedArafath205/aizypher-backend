@@ -1,7 +1,40 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "Easebuzz/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/initiate_payment",
+      "dest": "/Easebuzz/initiate_payment.js"
+    },
+    {
+      "src": "/response",
+      "dest": "/Easebuzz/response.js"
+    },
+    {
+      "src": "/transaction",
+      "dest": "/Easebuzz/transaction.js"
+    },
+    {
+      "src": "/transaction_date",
+      "dest": "/Easebuzz/transaction_date.js"
+    },
+    {
+      "src": "/payout",
+      "dest": "/Easebuzz/payout.js"
+    },
+    {
+      "src": "/refund",
+      "dest": "/Easebuzz/refund.js"
+    }
+  ],
   "headers": [
     {
-      "source": "/initiate-payment",
+      "source": "/(initiate_payment|response|transaction|transaction_date|payout|refund)",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
@@ -9,11 +42,11 @@
         },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+          "value": "GET, POST, OPTIONS"
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "*"
+          "value": "Content-Type, Authorization"
         },
         {
           "key": "Access-Control-Allow-Credentials",
