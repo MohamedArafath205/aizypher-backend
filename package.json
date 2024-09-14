@@ -1,26 +1,18 @@
 {
-  "name": "anurag",
+  "name": "smtp",
   "version": "1.0.0",
-  "description": "a",
-  "main": "app.js",
-  "directories": {
-    "test": "test"
-  },
+  "description": "",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vercel/analytics": "^1.3.1",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "ejs": "^3.1.3",
-    "express": "^4.20.0",
-    "express-validator": "^6.5.0",
-    "js-sha512": "^0.8.0",
-    "location-href": "^1.0.0",
-    "nodemon": "^2.0.4",
-    "request": "^2.88.2",
-    "vercel": "^37.4.1"
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.14"
   }
 }
